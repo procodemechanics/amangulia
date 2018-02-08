@@ -8,6 +8,7 @@ module MusicP {
 		interface Leds;
 		interface SplitControl as RadioControl;
 
+		interface UDP as Publish;
 		interface UDP as LightSend;
 		interface UDP as Settings;
 
@@ -30,19 +31,27 @@ module MusicP {
 	settings_t settings;
 	uint32_t m_seq = 0;
 	uint16_t m_par;
+	bool single;
 	nx_struct sensing_report stats;
 	struct sockaddr_in6 route_dest;
-	struct sockaddr_in6 multicast;
+	struct sockaddr_in6 multicast1;
+	struct sockaddr_in6 multicast2;
 
 	event void Boot.booted() {
+		single = TRUE;
+
 		settings.light_threshold = LOW_LIGHT_THRESHOLD;
 
 		route_dest.sin6_port = htons(7000);
 		inet_pton6(REPORT_DEST, &route_dest.sin6_addr);
 
-		multicast.sin6_port = htons(4000);
-		inet_pton6(MULTICAST, &multicast.sin6_addr);
+		multicast1.sin6_port = htons(4000);
+		inet_pton6(MULTICAST, &multicast1.sin6_addr);
 		call Settings.bind(4000);
+
+		multicast2.sin6_port = htons(4040);
+		inet_pton6(MULTICAST, &multicast2.sin6_addr);
+		call LightSend.bind(4040);
 
 		call ConfigMount.mount();
 
@@ -86,7 +95,11 @@ module MusicP {
 
 	//udp interfaces
 
-	event void LightSend.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {}
+	event void Publish.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {}
+
+	event void LightSend.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {
+		single = FALSE;
+	}
 
 	event void Settings.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {
 		memcpy(&settings, data, sizeof(settings_t));
@@ -117,7 +130,7 @@ module MusicP {
 	}
 
 	task void report_settings() {
-		call Settings.sendto(&multicast, &settings, sizeof(settings));
+		call Settings.sendto(&multicast1, &settings, sizeof(settings));
 		call ConfigStorage.write(0, &settings, sizeof(settings));
 	}
 
@@ -157,15 +170,19 @@ module MusicP {
 		stats.seqno++;
 		stats.sender = TOS_NODE_ID;
 		stats.light = m_par;
-		call LightSend.sendto(&route_dest, &stats, sizeof(stats));
+		call LightSend.sendto(&multicast2, &stats, sizeof(stats));
 	}
 
 	event void ReadPar.readDone(error_t e, uint16_t data) {
 		if (e == SUCCESS) {
 			m_par = data;
+			single = TRUE;
 			if (data < settings.light_threshold) {
 				call Leds.set(7);
 				post report_light();
+				if (single) {
+					call Publish.sendto(&route_dest, &stats, sizeof(stats));
+				}
 			} else {
 				call Leds.set(0);
 			}

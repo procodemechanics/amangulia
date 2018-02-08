@@ -13,6 +13,8 @@ configuration MusicC {
 	MusicP.RadioControl -> IPStackC;
 
 	components UdpC;
+	components new UdpSocketC() as Publish;
+	MusicP.Publish -> Publish;
 	components new UdpSocketC() as LightSend;
 	MusicP.LightSend -> LightSend;
 	components new UdpSocketC() as Settings;
