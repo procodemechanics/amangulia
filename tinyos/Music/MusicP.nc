@@ -128,12 +128,19 @@ module MusicP {
 				if (!strcmp("th", argv[1])) {
 					settings.light_threshold = atoi(argv[2]);
 					sprintf(ret, ">>>Threshold changed to %u\n",settings.light_threshold);
-					post report_settings();
 				} else {
 					strcpy(ret,"Usage: set th <threshold>\n");
 				}
+			} else if (argc == 4) {
+				if (!strcmp("th", argv[1]) && !strcmp("global", argv[3])) {
+					settings.light_threshold = atoi(argv[2]);
+					sprintf(ret, ">>>Threshold changed globally to %u\n",settings.light_threshold);
+					post report_settings();
+				} else {
+					strcpy(ret,"Usage: set th <threshold> global\n");
+				}
 			} else {
-				strcpy(ret,"Usage: set th <threshold>\n");
+				strcpy(ret,"Usage: set th <threshold> [global]\n");
 			}
 		}
 		return ret;
