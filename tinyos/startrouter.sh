@@ -1,5 +1,5 @@
-#Shell script to start a Ppp router
-#in the device 0
+#!/bin/bash
+
 cd PppRouter
 make telosb
 make telosb install
