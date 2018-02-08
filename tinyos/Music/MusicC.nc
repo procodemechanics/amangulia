@@ -13,8 +13,8 @@ configuration MusicC {
 	MusicP.RadioControl -> IPStackC;
 
 	components UdpC;
-	components new UdpSocketC() as VoltSend;
-	MusicP.VoltSend -> VoltSend;
+	components new UdpSocketC() as LightSend;
+	MusicP.LightSend -> LightSend;
 	components new UdpSocketC() as Settings;
 	MusicP.Settings -> Settings;
 
@@ -24,13 +24,13 @@ configuration MusicC {
 	MusicP.GetCmd -> GetCmd;
 	MusicP.SetCmd -> SetCmd;
 
-	components new VoltageC();
-	MusicP.Volt -> VoltageC.Read;
+	components new TimerMilliC() as SensorReadTimer;
+	MusicP.SensorReadTimer -> SensorReadTimer;
 
-	components new TimerMilliC() as VoltTimer;
-	MusicP.VoltTimer -> VoltTimer;
+	components new ConfigStorageC(VOLUME_CONFIG) as LightSettings;
+	MusicP.ConfigMount -> LightSettings;
+	MusicP.ConfigStorage -> LightSettings;
 
-	components new ConfigStorageC(VOLUME_CONFIG) as VoltSettings;
-	MusicP.ConfigMount -> VoltSettings;
-	MusicP.ConfigStorage -> VoltSettings;
+	components new HamamatsuS1087ParC() as SensorPar;
+	MusicP.ReadPar -> SensorPar.Read;
 }

@@ -8,14 +8,14 @@ module MusicP {
 		interface Leds;
 		interface SplitControl as RadioControl;
 
-		interface UDP as VoltSend;
+		interface UDP as LightSend;
 		interface UDP as Settings;
 
 		interface ShellCommand as GetCmd;
 		interface ShellCommand as SetCmd;
 
-		interface Timer<TMilli> as VoltTimer;
-		interface Read<uint16_t> as Volt;
+		interface Timer<TMilli> as SensorReadTimer;
+		interface Read<uint16_t> as ReadPar;
 
 		interface Mount as ConfigMount;
 		interface ConfigStorage;
@@ -23,19 +23,19 @@ module MusicP {
 } implementation {
 
 	enum {
-		VOLTAGE_PERIOD = 5000, // ms
-		LOW_VOLTAGE_THRESHOLD = 1000,
+		LOW_LIGHT_THRESHOLD = 50,
+		PERIOD = 500, // ms
 	};
 
 	settings_t settings;
-	uint16_t m_volt;
+	uint32_t m_seq = 0;
+	uint16_t m_par;
 	nx_struct sensing_report stats;
 	struct sockaddr_in6 route_dest;
 	struct sockaddr_in6 multicast;
 
 	event void Boot.booted() {
-		settings.voltage_period = VOLTAGE_PERIOD;
-		settings.voltage_threshold = LOW_VOLTAGE_THRESHOLD;
+		settings.light_threshold = LOW_LIGHT_THRESHOLD;
 
 		route_dest.sin6_port = htons(7000);
 		inet_pton6(REPORT_DEST, &route_dest.sin6_addr);
@@ -51,7 +51,7 @@ module MusicP {
 
 	//radio
 	event void RadioControl.startDone(error_t e) {
-		call VoltTimer.startPeriodic(settings.voltage_period);
+		call SensorReadTimer.startPeriodic(PERIOD);
 	}
 	event void RadioControl.stopDone(error_t e) {}
 
@@ -67,8 +67,7 @@ module MusicP {
 			if (call ConfigStorage.valid()) {
 				call ConfigStorage.read(0, &settings, sizeof(settings));
 			} else {
-				settings.voltage_period = VOLTAGE_PERIOD;
-				settings.voltage_threshold = LOW_VOLTAGE_THRESHOLD;
+				settings.light_threshold = LOW_LIGHT_THRESHOLD;
 				call RadioControl.start();
 			}
 		}
@@ -85,11 +84,9 @@ module MusicP {
 	event void ConfigStorage.commitDone(error_t error) {}
 
 
-
-
 	//udp interfaces
 
-	event void VoltSend.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {}
+	event void LightSend.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {}
 
 	event void Settings.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {
 		memcpy(&settings, data, sizeof(settings_t));
@@ -103,19 +100,17 @@ module MusicP {
 		if (ret != NULL) {
 			switch (argc) {
 				case 1:
-					sprintf(ret, "\t[Period: %u]\n\t[Threshold: %u]\n", settings.voltage_period, settings.voltage_threshold);
+					sprintf(ret, "\t[Threshold: %u]\n", settings.light_threshold);
 					break;
 				case 2:
-					if (!strcmp("per",argv[1])) {
-						sprintf(ret, "\t[Period: %u]\n", settings.voltage_period);
-					} else if (!strcmp("th", argv[1])) {
-						sprintf(ret, "\t[Threshold: %u]\n",settings.voltage_threshold);
+					if (!strcmp("th", argv[1])) {
+						sprintf(ret, "\t[Threshold: %u]\n",settings.light_threshold);
 					} else {
-						strcpy(ret, "Usage: get [per|th]\n");
+						strcpy(ret, "Usage: get th\n");
 					}
 					break;
 				default:
-					strcpy(ret, "Usage: get [per|th]\n");
+					strcpy(ret, "Usage: get th\n");
 			}
 		}
 		return ret;
@@ -130,47 +125,43 @@ module MusicP {
 		char *ret = call SetCmd.getBuffer(40);
 		if (ret != NULL) {
 			if (argc == 3) {
-				if (!strcmp("per",argv[1])) {
-					settings.voltage_period = atoi(argv[2]);
-					sprintf(ret, ">>>Period changed to %u\n",settings.voltage_period);
-					post report_settings();
-				} else if (!strcmp("th", argv[1])) {
-					settings.voltage_threshold = atoi(argv[2]);
-					sprintf(ret, ">>>Threshold changed to %u\n",settings.voltage_threshold);
+				if (!strcmp("th", argv[1])) {
+					settings.light_threshold = atoi(argv[2]);
+					sprintf(ret, ">>>Threshold changed to %u\n",settings.light_threshold);
 					post report_settings();
 				} else {
-					strcpy(ret,"Usage: set per|th [<sampleperiod in ms>|<threshold>]\n");
+					strcpy(ret,"Usage: set th <threshold>\n");
 				}
 			} else {
-				strcpy(ret,"Usage: set per|th [<sampleperiod in ms>|<threshold>]\n");
+				strcpy(ret,"Usage: set th <threshold>\n");
 			}
 		}
 		return ret;
 	}
 
 
-	//voltage report loop
+	// Light sensor
 
-	event void VoltTimer.fired() {
-		call Volt.read();
+	event void SensorReadTimer.fired() {
+		call ReadPar.read();
 	}
 
-	task void report_volt() {
+	task void report_light() {
 		stats.seqno++;
 		stats.sender = TOS_NODE_ID;
-		stats.voltage = m_volt;
-		call VoltSend.sendto(&route_dest, &stats, sizeof(stats));
+		stats.light = m_par;
+		call LightSend.sendto(&route_dest, &stats, sizeof(stats));
 	}
 
-	event void Volt.readDone(error_t ok, uint16_t val) {
-		if (ok == SUCCESS) {
-			m_volt = val;
-			if (val < settings.voltage_threshold) {
-				call Leds.led0On();
+	event void ReadPar.readDone(error_t e, uint16_t data) {
+		if (e == SUCCESS) {
+			m_par = data;
+			if (data < settings.light_threshold) {
+				call Leds.set(7);
+				post report_light();
 			} else {
-				call Leds.led0Off();
+				call Leds.set(0);
 			}
-			post report_volt();
 		}
 	}
 }
