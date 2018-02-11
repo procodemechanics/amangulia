@@ -39,7 +39,7 @@ class Sensing(tinyos.message.Message.Message):
         except:
             pass
         try:
-            s += "  [light=0x%x]\n" % (self.get_light())
+            s += "  [instrument=0x%x]\n" % (self.get_instrument())
         except:
             pass
         return s
@@ -157,57 +157,57 @@ class Sensing(tinyos.message.Message.Message):
         return 16
     
     #
-    # Accessor methods for field: light
+    # Accessor methods for field: instrument
     #   Field type: int
     #   Offset (bits): 32
     #   Size (bits): 16
     #
 
     #
-    # Return whether the field 'light' is signed (False).
+    # Return whether the field 'instrument' is signed (False).
     #
-    def isSigned_light(self):
+    def isSigned_instrument(self):
         return False
     
     #
-    # Return whether the field 'light' is an array (False).
+    # Return whether the field 'instrument' is an array (False).
     #
-    def isArray_light(self):
+    def isArray_instrument(self):
         return False
     
     #
-    # Return the offset (in bytes) of the field 'light'
+    # Return the offset (in bytes) of the field 'instrument'
     #
-    def offset_light(self):
+    def offset_instrument(self):
         return (32 / 8)
     
     #
-    # Return the offset (in bits) of the field 'light'
+    # Return the offset (in bits) of the field 'instrument'
     #
-    def offsetBits_light(self):
+    def offsetBits_instrument(self):
         return 32
     
     #
-    # Return the value (as a int) of the field 'light'
+    # Return the value (as a int) of the field 'instrument'
     #
-    def get_light(self):
-        return self.getUIntElement(self.offsetBits_light(), 16, 1)
+    def get_instrument(self):
+        return self.getUIntElement(self.offsetBits_instrument(), 16, 1)
     
     #
-    # Set the value of the field 'light'
+    # Set the value of the field 'instrument'
     #
-    def set_light(self, value):
-        self.setUIntElement(self.offsetBits_light(), 16, value, 1)
+    def set_instrument(self, value):
+        self.setUIntElement(self.offsetBits_instrument(), 16, value, 1)
     
     #
-    # Return the size, in bytes, of the field 'light'
+    # Return the size, in bytes, of the field 'instrument'
     #
-    def size_light(self):
+    def size_instrument(self):
         return (16 / 8)
     
     #
-    # Return the size, in bits, of the field 'light'
+    # Return the size, in bits, of the field 'instrument'
     #
-    def sizeBits_light(self):
+    def sizeBits_instrument(self):
         return 16
     
