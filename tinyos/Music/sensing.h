@@ -8,11 +8,12 @@ enum {
 nx_struct sensing_report {
   nx_uint16_t seqno;
   nx_uint16_t sender;
-  nx_uint16_t light;
+  nx_uint16_t instrument;
 } ;
 
 typedef nx_struct settings {
   nx_uint16_t light_threshold;
+  nx_uint16_t instrument;
 } settings_t;
 
 #define REPORT_DEST "fec0::100"

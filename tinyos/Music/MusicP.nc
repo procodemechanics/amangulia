@@ -26,6 +26,7 @@ module MusicP {
 	enum {
 		LOW_LIGHT_THRESHOLD = 50,
 		PERIOD = 500, // ms
+		DRUM = 1,
 	};
 
 	settings_t settings;
@@ -41,6 +42,7 @@ module MusicP {
 		single = TRUE;
 
 		settings.light_threshold = LOW_LIGHT_THRESHOLD;
+		settings.instrument = DRUM;
 
 		route_dest.sin6_port = htons(7000);
 		inet_pton6(REPORT_DEST, &route_dest.sin6_addr);
@@ -77,6 +79,7 @@ module MusicP {
 				call ConfigStorage.read(0, &settings, sizeof(settings));
 			} else {
 				settings.light_threshold = LOW_LIGHT_THRESHOLD;
+				settings.instrument = DRUM;
 				call RadioControl.start();
 			}
 		}
@@ -113,17 +116,19 @@ module MusicP {
 		if (ret != NULL) {
 			switch (argc) {
 				case 1:
-					sprintf(ret, "\t[Threshold: %u]\n", settings.light_threshold);
+					sprintf(ret, "\t[Threshold: %u]\n\t[Instrument: %u]\n", settings.light_threshold, settings.instrument);
 					break;
 				case 2:
 					if (!strcmp("th", argv[1])) {
 						sprintf(ret, "\t[Threshold: %u]\n",settings.light_threshold);
+					} else if (!strcmp("inst", argv[1])) {
+						sprintf(ret, "\t[Instrument: %u]\n",settings.instrument);
 					} else {
-						strcpy(ret, "Usage: get th\n");
+						strcpy(ret, "Usage: get [th | inst]\n");
 					}
 					break;
 				default:
-					strcpy(ret, "Usage: get th\n");
+					strcpy(ret, "Usage: get [th | inst]\n");
 			}
 		}
 		return ret;
@@ -141,8 +146,12 @@ module MusicP {
 				if (!strcmp("th", argv[1])) {
 					settings.light_threshold = atoi(argv[2]);
 					sprintf(ret, ">>>Threshold changed to %u\n",settings.light_threshold);
+				} else if (!strcmp("inst", argv[1])) {
+					settings.instrument = atoi(argv[2]);
+					sprintf(ret, ">>>Instrument changed to %u\n",settings.instrument);
+
 				} else {
-					strcpy(ret,"Usage: set th <threshold>\n");
+					strcpy(ret,"Usage: set [th | inst] [<threshold> | <instrument>]\n");
 				}
 			} else if (argc == 4) {
 				if (!strcmp("th", argv[1]) && !strcmp("global", argv[3])) {
@@ -153,7 +162,7 @@ module MusicP {
 					strcpy(ret,"Usage: set th <threshold> global\n");
 				}
 			} else {
-				strcpy(ret,"Usage: set th <threshold> [global]\n");
+				strcpy(ret,"Usage: set [th | inst] [<threshold> | <instrument>] [global]\n");
 			}
 		}
 		return ret;
@@ -169,7 +178,7 @@ module MusicP {
 	task void report_light() {
 		stats.seqno++;
 		stats.sender = TOS_NODE_ID;
-		stats.light = m_par;
+		stats.instrument = settings.instrument;
 		call LightSend.sendto(&multicast2, &stats, sizeof(stats));
 	}
 
@@ -177,7 +186,7 @@ module MusicP {
 		if (e == SUCCESS) {
 			m_par = data;
 			single = TRUE;
-			if (data < settings.light_threshold) {
+			if (data > settings.light_threshold) {
 				call Leds.set(7);
 				post report_light();
 				if (single) {
