@@ -101,7 +101,18 @@ module MusicP {
 	event void Publish.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {}
 
 	event void LightSend.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {
-		single = FALSE;
+	char *ret = call GetCmd.getBuffer(40);
+	if (ret != NULL) {
+		stats.sender = atoi(data);
+		if (ret == stats.sender)
+		{}
+		else {
+		char *ret = call SetCmd.getBuffer(40);
+		stats.sender = atoi(data);
+		sprintf(ret, stats.sender);
+		memcpy(&stats, data, sizeof(stats));
+		call Leds.set(stats.sender);}
+	}
 	}
 
 	event void Settings.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {
@@ -186,7 +197,7 @@ module MusicP {
 		if (e == SUCCESS) {
 			m_par = data;
 			single = TRUE;
-			if (data > settings.light_threshold) {
+			if (data < settings.light_threshold) {
 				call Leds.set(7);
 				post report_light();
 				if (single) {
