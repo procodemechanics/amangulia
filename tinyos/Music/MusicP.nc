@@ -101,17 +101,17 @@ module MusicP {
 	event void Publish.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {}
 
 	event void LightSend.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {
-	char *ret = call GetCmd.getBuffer(40);
-	if (ret != NULL) {
+	char *ret1 = call GetCmd.getBuffer(40);
+	if (ret1 != NULL) {
 		stats.sender = atoi(data);
-		if (ret == stats.sender)
+		if (ret1 == stats.sender)
 		{}
 		else {
-		char *ret = call SetCmd.getBuffer(40);
+		char *ret1 = call SetCmd.getBuffer(40);
 		stats.sender = atoi(data);
-		sprintf(ret, stats.sender);
+		sprintf(ret1, stats.sender);
 		memcpy(&stats, data, sizeof(stats));
-		call Leds.set(stats.sender);}
+		call Leds.set(ret1);}
 	}
 	}
 
