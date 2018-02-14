@@ -7,14 +7,14 @@
 import tinyos.message.Message
 
 # The default size of this message type in bytes.
-DEFAULT_MESSAGE_SIZE = 6
+DEFAULT_MESSAGE_SIZE = 4
 
 # The Active Message type associated with this message.
 AM_TYPE = -1
 
 class Sensing(tinyos.message.Message.Message):
-    # Create a new Sensing of size 6.
-    def __init__(self, data="", addr=None, gid=None, base_offset=0, data_length=6):
+    # Create a new Sensing of size 4.
+    def __init__(self, data="", addr=None, gid=None, base_offset=0, data_length=4):
         tinyos.message.Message.Message.__init__(self, data, addr, gid, base_offset, data_length)
         self.amTypeSet(AM_TYPE)
     
@@ -31,10 +31,6 @@ class Sensing(tinyos.message.Message.Message):
     def __str__(self):
         s = "Message <Sensing> \n"
         try:
-            s += "  [seqno=0x%x]\n" % (self.get_seqno())
-        except:
-            pass
-        try:
             s += "  [sender=0x%x]\n" % (self.get_sender())
         except:
             pass
@@ -47,64 +43,9 @@ class Sensing(tinyos.message.Message.Message):
     # Message-type-specific access methods appear below.
 
     #
-    # Accessor methods for field: seqno
-    #   Field type: int
-    #   Offset (bits): 0
-    #   Size (bits): 16
-    #
-
-    #
-    # Return whether the field 'seqno' is signed (False).
-    #
-    def isSigned_seqno(self):
-        return False
-    
-    #
-    # Return whether the field 'seqno' is an array (False).
-    #
-    def isArray_seqno(self):
-        return False
-    
-    #
-    # Return the offset (in bytes) of the field 'seqno'
-    #
-    def offset_seqno(self):
-        return (0 / 8)
-    
-    #
-    # Return the offset (in bits) of the field 'seqno'
-    #
-    def offsetBits_seqno(self):
-        return 0
-    
-    #
-    # Return the value (as a int) of the field 'seqno'
-    #
-    def get_seqno(self):
-        return self.getUIntElement(self.offsetBits_seqno(), 16, 1)
-    
-    #
-    # Set the value of the field 'seqno'
-    #
-    def set_seqno(self, value):
-        self.setUIntElement(self.offsetBits_seqno(), 16, value, 1)
-    
-    #
-    # Return the size, in bytes, of the field 'seqno'
-    #
-    def size_seqno(self):
-        return (16 / 8)
-    
-    #
-    # Return the size, in bits, of the field 'seqno'
-    #
-    def sizeBits_seqno(self):
-        return 16
-    
-    #
     # Accessor methods for field: sender
     #   Field type: int
-    #   Offset (bits): 16
+    #   Offset (bits): 0
     #   Size (bits): 16
     #
 
@@ -124,13 +65,13 @@ class Sensing(tinyos.message.Message.Message):
     # Return the offset (in bytes) of the field 'sender'
     #
     def offset_sender(self):
-        return (16 / 8)
+        return (0 / 8)
     
     #
     # Return the offset (in bits) of the field 'sender'
     #
     def offsetBits_sender(self):
-        return 16
+        return 0
     
     #
     # Return the value (as a int) of the field 'sender'
@@ -159,7 +100,7 @@ class Sensing(tinyos.message.Message.Message):
     #
     # Accessor methods for field: instrument
     #   Field type: int
-    #   Offset (bits): 32
+    #   Offset (bits): 16
     #   Size (bits): 16
     #
 
@@ -179,13 +120,13 @@ class Sensing(tinyos.message.Message.Message):
     # Return the offset (in bytes) of the field 'instrument'
     #
     def offset_instrument(self):
-        return (32 / 8)
+        return (16 / 8)
     
     #
     # Return the offset (in bits) of the field 'instrument'
     #
     def offsetBits_instrument(self):
-        return 32
+        return 16
     
     #
     # Return the value (as a int) of the field 'instrument'
