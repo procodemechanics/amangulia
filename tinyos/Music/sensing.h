@@ -5,8 +5,7 @@ enum {
   AM_SENSING_REPORT = -1
 };
 
-nx_struct sensing_report {
-  nx_uint16_t seqno;
+nx_struct sensing_report { 
   nx_uint16_t sender;
   nx_uint16_t instrument;
 } ;
