@@ -32,14 +32,14 @@ module MusicP {
 	settings_t settings;
 	uint32_t m_seq = 0;
 	uint16_t m_par;
-	bool single;
+	uint16_t buff;	
 	nx_struct sensing_report stats;
 	struct sockaddr_in6 route_dest;
 	struct sockaddr_in6 multicast1;
 	struct sockaddr_in6 multicast2;
 
 	event void Boot.booted() {
-		single = TRUE;
+		buff = malloc(sizeof(char)*40);
 
 		settings.light_threshold = LOW_LIGHT_THRESHOLD;
 		settings.instrument = DRUM;
@@ -101,7 +101,24 @@ module MusicP {
 	event void Publish.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {}
 
 	event void LightSend.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {
-		single = FALSE;
+<<<<<<< HEAD
+		memcpy(&stats, data, sizeof(stats));
+		buff = stats.sender;
+		call Leds.set(buff);
+=======
+	char *ret1 = call GetCmd.getBuffer(40);
+	if (ret1 != NULL) {
+		stats.sender = atoi(data);
+		if (ret1 == stats.sender)
+		{}
+		else {
+		char *ret1 = call SetCmd.getBuffer(40);
+		stats.sender = atoi(data);
+		sprintf(ret1, stats.sender);
+		memcpy(&stats, data, sizeof(stats));
+		call Leds.set(ret1);}
+	}
+>>>>>>> development
 	}
 
 	event void Settings.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {
@@ -185,13 +202,14 @@ module MusicP {
 	event void ReadPar.readDone(error_t e, uint16_t data) {
 		if (e == SUCCESS) {
 			m_par = data;
+<<<<<<< HEAD
+=======
 			single = TRUE;
-			if (data > settings.light_threshold) {
+>>>>>>> development
+			if (data < settings.light_threshold) {
 				call Leds.set(7);
 				post report_light();
-				if (single) {
-					call Publish.sendto(&route_dest, &stats, sizeof(stats));
-				}
+				//call Publish.sendto(&route_dest, &stats, sizeof(stats));
 			} else {
 				call Leds.set(0);
 			}
