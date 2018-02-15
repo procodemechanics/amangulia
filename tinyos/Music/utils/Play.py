@@ -8,7 +8,8 @@ import time
 
 port = 7000
 pygame.init()
-buff = []
+sbuff = []
+single = True
 
 drum_splash = pygame.mixer.Sound("samples/drum_splash_hard.wav") #1
 drum_bass = pygame.mixer.Sound("samples/drum_bass_hard.wav")     #2
@@ -18,7 +19,7 @@ choir = pygame.mixer.Sound("samples/ambi_choir.wav")             #5
 cymbal = pygame.mixer.Sound("samples/elec_cymbal.wav")           #6
 guit_slide = pygame.mixer.Sound("samples/guit_e_slide.wav")      #100
 
-def play(instrument):
+def play(sender=None, instrument=None):
     if instrument == 1:
         drum_splash.play()
     elif instrument == 2:
@@ -35,7 +36,12 @@ def play(instrument):
         guit_slide.play()
     
     time.sleep(0.3)
-    buff.remove(instrument)
+
+    if sender != None:
+        sbuff.remove(sender)
+    else:
+        global single
+        single = True
 
 
 if __name__ == '__main__':
@@ -48,13 +54,19 @@ if __name__ == '__main__':
         if (len(data) > 0):
 
             rpt = Sensing.Sensing(data=data, data_length=len(data))
-            print(rpt)
-
+            
             instrument = rpt.get_instrument()
-            if instrument not in buff:
-                buff.append(instrument)
-                Thread(target=play, args=[instrument]).start()
-                
+            sender = rpt.get_sender()
+            print (instrument, sender)
+
+            if sender not in sbuff and instrument != 100:
+                sbuff.append(sender)
+                Thread(target=play, args=[sender, instrument]).start()
+            elif single == True and instrument == 100:
+                single = False
+                Thread(target=play, args=[None, instrument]).start()
+
+
             
            
 
