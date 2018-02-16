@@ -30,8 +30,9 @@ module MusicP {
 	};
 
 	settings_t settings;
-	uint16_t m_par;	
+	uint16_t m_par;
 	nx_struct sensing_report stats;
+	nx_struct sensing_report stats2;
 	struct sockaddr_in6 route_dest;
 	struct sockaddr_in6 multicast1;
 	struct sockaddr_in6 multicast2;
@@ -98,12 +99,12 @@ module MusicP {
 	event void Publish.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {}
 
 	event void LightSend.recvfrom(struct sockaddr_in6 *from, void *data, uint16_t len, struct ip6_metadata *meta) {
-		memcpy(&stats, data, sizeof(stats));
-		call Leds.set(stats.sender);
+		memcpy(&stats2, data, sizeof(stats2));
+		call Leds.set(stats2.sender);
 		if (m_par < settings.light_threshold) {
-			stats.sender = TOS_NODE_ID;
-			stats.instrument = 100;
-			call Publish.sendto(&route_dest, &stats, sizeof(stats));
+			stats2.sender = TOS_NODE_ID;
+			stats2.instrument = 100;
+			call Publish.sendto(&route_dest, &stats2, sizeof(stats2));
 		}
 	}
 
