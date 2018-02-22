@@ -11,47 +11,33 @@ pygame.init()
 sbuff = []
 single = True
 
-drum_splash = pygame.mixer.Sound("samples/drum_splash_hard.wav") #1
-drum_bass = pygame.mixer.Sound("samples/drum_bass_hard.wav")     #2
-drum_snare = pygame.mixer.Sound("samples/drum_snare_hard.wav")   #3
-guit = pygame.mixer.Sound("samples/guit_e_fifths.wav")           #4
-choir = pygame.mixer.Sound("samples/ambi_choir.wav")             #5
-cymbal = pygame.mixer.Sound("samples/elec_cymbal.wav")           #6
-guit_slide = pygame.mixer.Sound("samples/guit_e_slide.wav")      #100
-
-a1 = pygame.mixer.Sound("samples/piano/a1.wav")
-b1 = pygame.mixer.Sound("samples/piano/b1.wav")
-c1 = pygame.mixer.Sound("samples/piano/c1.wav")
-d1 = pygame.mixer.Sound("samples/piano/d1.wav")
-e1 = pygame.mixer.Sound("samples/piano/e1.wav")
-f1 = pygame.mixer.Sound("samples/piano/f1.wav")
-g1 = pygame.mixer.Sound("samples/piano/g1.wav")
+a = pygame.mixer.Sound("samples/bells/bells_a.wav")
+b = pygame.mixer.Sound("samples/bells/bells_b.wav")
+c = pygame.mixer.Sound("samples/bells/bells_c.wav")
+d = pygame.mixer.Sound("samples/bells/bells_d.wav")
+e = pygame.mixer.Sound("samples/bells/bells_e.wav")
+f = pygame.mixer.Sound("samples/bells/bells_f.wav")
+g = pygame.mixer.Sound("samples/bells/bells_.wav")
+coir = pygame.mixer.Sound("samples/ambi_choir.wav")
 
 
 def play(sender=None, instrument=None):
     if instrument == 1:
-        #drum_splash.play()
-        a1.play()
+        c.play()
     elif instrument == 2:
-        #drum_bass.play()
-        b1.play()
+        d.play()
     elif instrument == 3:
-        #drum_snare.play()
-        c1.play()
+        e.play()
     elif instrument == 4:
-        #guit.play()
-        d1.play()
+        f.play()
     elif instrument == 5:
-        #choir.play()
-        e1.play()
+        g.play()
     elif instrument == 6:
-        #cymbal.play()
-        f1.play()
+        a.play()
     elif instrument == 7:
-        #guit_slide.play()
-        g1.play()
+        b.play()
     elif instrument == 100:
-        guit_slide.play()
+        coir.play()
 
     time.sleep(0.3)
 
