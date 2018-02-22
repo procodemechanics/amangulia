@@ -11,13 +11,13 @@ pygame.init()
 sbuff = []
 single = True
 
-a = pygame.mixer.Sound("samples/bells/bells_a.wav")
-b = pygame.mixer.Sound("samples/bells/bells_b.wav")
-c = pygame.mixer.Sound("samples/bells/bells_c.wav")
-d = pygame.mixer.Sound("samples/bells/bells_d.wav")
-e = pygame.mixer.Sound("samples/bells/bells_e.wav")
-f = pygame.mixer.Sound("samples/bells/bells_f.wav")
-g = pygame.mixer.Sound("samples/bells/bells_.wav")
+a = pygame.mixer.Sound("samples/piano/a1.wav")
+b = pygame.mixer.Sound("samples/piano/b1.wav")
+c = pygame.mixer.Sound("samples/piano/c1.wav")
+d = pygame.mixer.Sound("samples/piano/d1.wav")
+e = pygame.mixer.Sound("samples/piano/e1.wav")
+f = pygame.mixer.Sound("samples/piano/f1.wav")
+g = pygame.mixer.Sound("samples/piano/g1.wav")
 coir = pygame.mixer.Sound("samples/ambi_choir.wav")
 
 
