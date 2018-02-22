@@ -150,10 +150,11 @@ module MusicP {
 				if (!strcmp("th", argv[1])) {
 					settings.light_threshold = atoi(argv[2]);
 					sprintf(ret, ">>>Threshold changed to %u\n",settings.light_threshold);
+					call ConfigStorage.write(0, &settings, sizeof(settings));
 				} else if (!strcmp("inst", argv[1])) {
 					settings.instrument = atoi(argv[2]);
 					sprintf(ret, ">>>Instrument changed to %u\n",settings.instrument);
-
+					call ConfigStorage.write(0, &settings, sizeof(settings));
 				} else {
 					strcpy(ret,"Usage: set [th | inst] [<threshold> | <instrument>]\n");
 				}
